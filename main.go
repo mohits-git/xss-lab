@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/mohits-git/xss-lab/internal/database"
@@ -29,5 +30,6 @@ func main() {
 	// for css, js, images and other static files
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	mux.HandleFunc("/", rootHandler)
-	http.ListenAndServe(":8080", mux)
+	fmt.Println("Web server listening on :8080")
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
