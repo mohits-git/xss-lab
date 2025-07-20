@@ -37,7 +37,6 @@
 
 			if (response.ok || response.status === 201) {
 				const token = response.headers.get('Authorization');
-				console.log('Token received:', token);
 				if (!token || !token.startsWith('Bearer ')) {
 					alert('Login successful, but no token received.');
 					return;

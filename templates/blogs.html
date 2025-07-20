@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogs | XSS-Lab</title>
+    <style>
+      body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 20px;
+			background-color: #f4f4f4;
+		}
+
+		h1 {
+			color: #333;
+		}
+
+		.blog-post {
+			background-color: #fff;
+			padding: 20px;
+			margin-bottom: 20px;
+			border-radius: 5px;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+		}
+
+		.blog-post h2 {
+			margin-top: 0;
+		}
+
+		.blog-post p {
+			color: #555;
+		}
+
+		#new-post-form {
+			margin-top: 20px;
+			background-color: #fff;
+			padding: 20px;
+			border-radius: 5px;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+		}
+
+		textarea {
+			width: 100%;
+			height: 100px;
+			padding: 10px;
+			border-radius: 5px;
+			border: 1px solid #ccc;
+			resize: vertical;
+		}
+    </style>
+  </head>
+  <body>
+    <h1>Blogs</h1>
+    <div id="blog-posts">
+      <!-- Blog posts will be dynamically inserted here -->
+    </div>
+    <div id="new-post-form">
+      <h2>Create New Post</h2>
+      <form id="post-form">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required placeholder="Enter post title" autofocus>
+        <br>
+        <label for="content">Content:</label>
+        <textarea id="content" name="content" required placeholder="Enter post content"></textarea>
+        <br>
+        <button type="submit">Create Post</button>
+      </form>
+    </div>
+    <script>
+      async function fetchPosts() {
+			const response = await fetch('/api/blogs');
+			if (response.ok) {
+				const posts = await response.json();
+				const blogPostsDiv = document.getElementById('blog-posts');
+				blogPostsDiv.innerHTML = '';
+				for (const post of posts) {
+					const postDiv = document.createElement('div');
+					postDiv.className = 'blog-post';
+					postDiv.innerHTML = `<h2><a href="/blogs/${post.id}">${post.title}</a></h2><p>${post.content.substring(0, 500)}...</p>`;
+					blogPostsDiv.appendChild(postDiv);
+				}
+			} else {
+				console.error('Failed to fetch posts:', response.statusText);
+			}
+		}
+
+		document.getElementById('post-form').addEventListener('submit', async function (event) {
+			event.preventDefault();
+			const token = localStorage.getItem('authToken');
+			if (!token) {
+				alert('You must be logged in to create a post.');
+				return;
+			}
+			const formData = new FormData(event.target);
+			const response = await fetch('/api/blogs', {
+				method: 'POST',
+				body: formData,
+				headers: {
+					'Authorization': `Bearer ${token}`
+				}
+			});
+			if (response.ok) {
+				await fetchPosts();
+				event.target.reset();
+			} else {
+				console.error('Failed to create post:', response.statusText);
+				if (response.status === 401) {
+					window.location.href = '/login'
+				} else {
+					alert('Failed to create post. Please try again later.');
+				}
+			}
+		});
+
+		fetchPosts();
+    </script>
+  </body>
+</html>

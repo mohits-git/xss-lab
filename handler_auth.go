@@ -56,8 +56,6 @@ func (cfg *apiConfig) loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("User found: %+v\n", user)
-
 	if user == nil || auth.ComparePassword(user.PasswordHash, password) != nil {
 		http.Redirect(w, r, "/login?error=Invalid email or password", http.StatusSeeOther)
 		return
@@ -129,7 +127,6 @@ func (cfg *apiConfig) registerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := cfg.db.CreateUser(name, email, passwordHash)
-	fmt.Printf("User created: %+v\n", user)
 	if err != nil {
 		fmt.Printf("Error creating user: %v\n", err)
 		http.Error(w, "Error creating user", http.StatusInternalServerError)

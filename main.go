@@ -14,11 +14,9 @@ import (
 func main() {
 	fmt.Println("Starting the web server")
 
-	// initialize sqlite database
-	err := database.InitializeDB("file:sqlite3.db")
+	apiCfg, err := initializeAPIConfig()
 	if err != nil {
-		fmt.Printf("Error initializing database: %v\n", err)
-		return
+		log.Fatalf("Error initializing API config: %v\n", err)
 	}
 	defer func() {
 		if err := database.CloseDB(); err != nil {
@@ -27,9 +25,22 @@ func main() {
 	}()
 
 	mux := http.NewServeMux()
-	// for css, js, images and other static files
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	mux.HandleFunc("/", rootHandler)
-	fmt.Println("Web server listening on :8080")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	mux.HandleFunc("/", apiCfg.rootHandler)
+	mux.HandleFunc("GET /login", apiCfg.loginPageHandler)
+	mux.HandleFunc("POST /api/login", apiCfg.loginHandler)
+	mux.HandleFunc("GET /register", apiCfg.registerPageHandler)
+	mux.HandleFunc("POST /api/register", apiCfg.registerHandler)
+	mux.HandleFunc("GET /blogs", apiCfg.blogsPageHandler)
+	mux.HandleFunc("GET /blogs/{id}", apiCfg.blogPageHandler)
+	mux.HandleFunc("GET /api/blogs", apiCfg.getBlogsHandler)
+	mux.HandleFunc("GET /api/users/{id}/blogs", apiCfg.getUserBlogsHandler)
+	mux.HandleFunc("GET /api/blogs/{id}", apiCfg.getBlogHandler)
+	mux.Handle("POST /api/blogs", apiCfg.loggedInMiddleware(apiCfg.createBlogHandler))
+	mux.Handle("PUT /api/blogs/{id}", apiCfg.loggedInMiddleware(apiCfg.updateBlogHandler))
+	mux.Handle("DELETE /api/blogs/{id}", apiCfg.loggedInMiddleware(apiCfg.deleteBlogHandler))
+	mux.Handle("POST /api/comments/{blog_id}", apiCfg.loggedInMiddleware(apiCfg.createCommentHandler));
+
+	fmt.Println("Web server listening on :" + apiCfg.port)
+	log.Fatal(http.ListenAndServe(":"+apiCfg.port, mux))
 }

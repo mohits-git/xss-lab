@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Blog.Title}} | XSS-Lab</title>
+    <style>
+      body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 20px;
+			background-color: #f4f4f4;
+		}
+
+		h1 {
+			color: #333;
+		}
+    </style>
+  </head>
+  <body>
+    <h1>{{.Blog.Title}}</h1>
+    <div>{{.Blog.Content}}</div>
+    <h3>Comments</h3>
+    <div id="comments">
+      {{range .Comments}}
+      <div class="comment">
+        <p><strong>{{.Author}}:</strong>
+          {{.Content}}</p>
+      </div>
+      {{end}}
+    </div>
+    <h3>Add a Comment</h3>
+    <form id="commentForm">
+      <label for="content">Comment:</label>
+      <textarea id="content" name="content" required></textarea>
+      <br>
+      <button type="submit">Submit</button>
+    </form>
+    <script>
+      document.getElementById('commentForm').addEventListener('submit', async function (event) {
+			event.preventDefault();
+			const form = event.target;
+			const formData = new FormData(form);
+
+			const token = localStorage.getItem('authToken');
+
+			const res = await fetch('/api/comments/{{.Blog.ID}}', {
+				method: 'POST',
+				headers: {
+					'Authorization': `Bearer ${token}`
+				},
+				body: formData,
+			});
+
+			if (!res.ok) {
+				if (res.status === 401) {
+					window.location.href = '/login';
+					return;
+				}
+				alert('Failed to submit comment.');
+				return;
+			}
+
+			window.location.reload();
+		});
+    </script>
+  </body>
+</html>
