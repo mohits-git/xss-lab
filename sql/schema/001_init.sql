@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE blogs (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE blogs (
 );
 
 CREATE TABLE comments (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     blog_id INT NOT NULL,
     user_id INT NOT NULL,
     content TEXT NOT NULL,

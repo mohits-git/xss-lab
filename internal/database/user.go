@@ -5,9 +5,10 @@ import (
 )
 
 type User struct {
-	ID    int64    `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID           int64  `json:"id"`
+	Name         string `json:"name"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
 }
 
 func (q *Queries) GetUserByID(userID int) (*User, error) {
@@ -21,6 +22,20 @@ func (q *Queries) GetUserByID(userID int) (*User, error) {
 			return nil, nil // No user found
 		}
 		return nil, err // Other error
+	}
+	return &user, nil
+}
+
+func (q *Queries) GetUserByEmail(email string) (*User, error) {
+	query := "SELECT id, name, email, password_hash FROM users WHERE email = ?"
+	row := q.db.QueryRow(query, email)
+	var user User
+	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // No user found
+		}
+		return nil, err
 	}
 	return &user, nil
 }

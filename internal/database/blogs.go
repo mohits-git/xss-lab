@@ -8,11 +8,11 @@ type Blog struct {
 	ID          int64        `json:"id"`
 	Title       string       `json:"title"`
 	Content     string       `json:"content"`
-	UserID      int          `json:"user_id"`
+	UserID      int64          `json:"user_id"`
 	PublishedAt sql.NullTime `json:"published_at"`
 }
 
-func (q *Queries) CreateBlog(title, content string, userID int) (*Blog, error) {
+func (q *Queries) CreateBlog(title, content string, userID int64) (*Blog, error) {
 	query := "INSERT INTO blogs (title, content, user_id) VALUES (?, ?, ?)"
 	result, err := q.db.Exec(query, title, content, userID)
 	if err != nil {
@@ -30,7 +30,7 @@ func (q *Queries) CreateBlog(title, content string, userID int) (*Blog, error) {
 	}, nil
 }
 
-func (q *Queries) UpdateBlog(blogID int, title, content string) (*Blog, error) {
+func (q *Queries) UpdateBlog(blogID int64, title, content string) (*Blog, error) {
 	query := "UPDATE blogs SET title = ?, content = ? WHERE id = ?"
 	_, err := q.db.Exec(query, title, content, blogID)
 	if err != nil {
@@ -39,7 +39,7 @@ func (q *Queries) UpdateBlog(blogID int, title, content string) (*Blog, error) {
 	return q.GetBlogByID(blogID)
 }
 
-func (q *Queries) GetBlogByID(blogID int) (*Blog, error) {
+func (q *Queries) GetBlogByID(blogID int64) (*Blog, error) {
 	query := "SELECT id, title, content, user_id, created_at FROM blogs WHERE id = ?"
 	row := q.db.QueryRow(query, blogID)
 
@@ -54,7 +54,7 @@ func (q *Queries) GetBlogByID(blogID int) (*Blog, error) {
 	return &blog, nil
 }
 
-func (q *Queries) DeleteBlog(blogID int) error {
+func (q *Queries) DeleteBlog(blogID int64) error {
 	query := "DELETE FROM blogs WHERE id = ?"
 	_, err := q.db.Exec(query, blogID)
 	if err != nil {
@@ -63,28 +63,33 @@ func (q *Queries) DeleteBlog(blogID int) error {
 	return nil
 }
 
-func (q *Queries) GetBlogs(string, limit, offset int) ([]*Blog, error) {
+func (q *Queries) GetBlogs(limit, offset int) ([]Blog, error) {
 	if limit <= 0 {
 		limit = 10 // Default limit
 	}
-	query := "SELECT * FROM blogs LIMIT ? OFFSET ?"
+	query := "SELECT id, title, content, user_id, created_at FROM blogs ORDER BY created_at DESC LIMIT ? OFFSET ?"
 	rows, err := q.db.Query(query, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var blogs []*Blog
+	var blogs []Blog
 	for rows.Next() {
 		var blog Blog
 		if err := rows.Scan(&blog.ID, &blog.Title, &blog.Content, &blog.UserID, &blog.PublishedAt); err != nil {
 			return nil, err
 		}
-		blogs = append(blogs, &blog)
+		blogs = append(blogs, blog)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
+
+	if len(blogs) == 0 {
+		return []Blog{}, nil
+	}
+
 	return blogs, nil
 }
 
@@ -125,7 +130,7 @@ func (q *Queries) GetBlogsByTitle(title string, limit, offset int) ([]*Blog, err
 	return blogs, nil
 }
 
-func (q *Queries) GetBlogsByUserID(userID int) ([]*Blog, error) {
+func (q *Queries) GetBlogsByUserID(userID int64) ([]*Blog, error) {
 	query := "SELECT * FROM blogs WHERE user_id = ?"
 	rows, err := q.db.Query(query, userID)
 	if err != nil {
