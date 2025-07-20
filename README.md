@@ -1,0 +1,100 @@
+# XSS-Lab
+
+XSS-Lab is a simple blog website built with Go. There are many vulnerabilities left in the website to show case XSS attacks and their preventions.
+
+## Technologies Used
+- Go (Golang)
+- HTML/CSS
+- JavaScript
+- SQLite (for database)
+- Goose (for db migrations)
+### go dependencies
+- sqlite3 driver [github.com/ncruces/go-sqlite3/](github.com/ncruces/go-sqlite3/)
+- jwt [github.com/golang-jwt/jwt](github.com/golang-jwt/jwt)
+- bcrypt [golang.org/x/crypto/bcrypt](golang.org/x/crypto/bcrypt)
+
+## Project Setup
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd xss-lab
+```
+2. Install dependencies:
+```bash
+go mod tidy
+```
+3. Set your environment variables:
+```bash
+export DB_URL=sqlite3.db
+export JWT_SECRET=your_jwt_secret
+export PORT=8080
+```
+4. Run database migrations:
+```bash
+goose sqlite3 sqlite3.db up --dir sql/schema
+```
+5. Start the server:
+```bash
+go run main.go
+```
+6. Open your browser and go to `http://localhost:8080`
+7. Register a new user or log in with an existing user.
+
+## Directory Structure
+```
+xss-lab/
+├── main.go                # Main application entry point
+├── templates/             # HTML templates
+├── static/                # Static files (CSS, JS, images)
+├── sql/schema             # SQL schema files for database migrations
+├── sql/migrations         # SQL migration files
+├── internal/              # Internal packages
+│   ├── database/          # Database connection and queries
+│   ├── auth/              # Authentication - JWT, passwords hashing and auth headers
+├── api_config.go          # API configuration and routes
+├── handler_X.go           # HTTP handlers for routes
+├── middleware/            # Middleware for protected routes
+├── main.go                # Main application logic
+├── go.mod                 # Go module file
+├── go.sum                 # Go module dependencies
+└── README.md              # Project documentation
+```
+
+## Features
+- User registration and login
+- Create blog posts (logged in users only)
+- View all blog posts
+- Search for blog posts by title
+- View blog post and comments
+- Comment on a blog post (logged in users only)
+
+## Usage
+- Register a new user by clicking on the "Register" link.
+- Log in with your credentials.
+- Create a new blog post by clicking on the "Create Post" link (logged in users only).
+- View all blog posts on the homepage.
+- Search for blog posts by title using the search bar.
+- Click on a blog post to view its details and comments.
+- Comment on a blog post by filling out the comment form (logged in users only).
+
+## Security Considerations
+- The application uses JWT for user authentication.
+- Passwords are hashed using bcrypt before storing them in the database.
+- NO Input validation and sanitization are implemented to prevent XSS attacks.
+- We are using unsafe `text/template` package to render user input directly in the HTML without sanitization.
+- The application does not implement any Content Security Policy (CSP) headers, which could help mitigate XSS attacks.
+
+## XSS Vulnerabilities
+The application intentionally contains XSS vulnerabilities to demonstrate how they can be exploited.
+- The `Create Post` and `Comment` features do not sanitize user input, allowing for script injection.
+- The `View Post` feature displays user-generated content without sanitization, making it vulnerable to XSS attacks.
+- The `Search` feature does not sanitize the search input, allowing for potential XSS attacks in the search results. The search input is sent via query param and is rendered directly in the HTML without sanitization.
+- The application stores the JWT cookie in local storage, which can be accessed by JavaScript, making it vulnerable to XSS attacks if an attacker can inject malicious scripts.
+- The application does not implement any Content Security Policy (CSP) headers, which could help mitigate XSS attacks.
+
+## Preventing XSS Attacks
+To prevent XSS attacks, the following measures can be implemented:
+- Use a library to sanitize user input before rendering it in the HTML.
+- Use the `html/template` package instead of `text/template` to automatically escape HTML characters.
+- Implement input validation and sanitization for all user inputs.
+- Use Content Security Policy (CSP) headers to restrict the sources of scripts and other resources.
