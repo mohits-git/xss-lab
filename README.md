@@ -2,6 +2,9 @@
 
 XSS-Lab is a simple blog website built with Go. There are many vulnerabilities left in the website to show case XSS attacks and their preventions.
 
+### Draw.io diagram
+[XSS-Lab Diagram](https://drive.google.com/file/d/1EpMI7AovdUgfQc01HOTXiwcdAmHypDSo/view?usp=sharing)
+
 ## Technologies Used
 - Go (Golang)
 - HTML/CSS
