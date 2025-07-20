@@ -16,13 +16,21 @@ func (cfg *apiConfig) blogsPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	query := r.URL.Query().Get("query")
+
+	data := struct {
+		Query string
+	}{
+		Query: query,
+	}
+
 	tmpl, err := template.ParseFiles("templates/blogs.html")
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	if err := tmpl.Execute(w, nil); err != nil {
+	if err := tmpl.Execute(w, data); err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 }
@@ -57,7 +65,7 @@ func (cfg *apiConfig) blogPageHandler(w http.ResponseWriter, r *http.Request) {
 		Blog     *database.Blog
 		Comments []*database.Comment
 	}{
-		Blog:    blog,
+		Blog:     blog,
 		Comments: comments,
 	}
 
@@ -73,6 +81,30 @@ func (cfg *apiConfig) blogPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (cfg *apiConfig) getBlogsCountHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	count, err := cfg.db.GetBlogCount()
+	if err != nil {
+		fmt.Println("Error fetching blogs count:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	response := struct {
+		Count int `json:"count"`
+	}{
+		Count: count,
+	}
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		fmt.Println("Error encoding count to JSON:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+}
+
 func (cfg *apiConfig) getBlogsHandler(w http.ResponseWriter, r *http.Request) {
 	// pagination
 	page := r.URL.Query().Get("page")
@@ -84,15 +116,23 @@ func (cfg *apiConfig) getBlogsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
-	limit := 10
+	limit := 100
 	offset := (pageNum - 1) * limit
-	// get blogs from the database
-	blogs, err := cfg.db.GetBlogs(limit, offset)
+
+	var blogs []database.Blog
+
+	query := r.URL.Query().Get("query")
+	if query != "" {
+		blogs, err = cfg.db.GetBlogsByTitle(query, limit, offset)
+	} else {
+		blogs, err = cfg.db.GetBlogs(limit, offset)
+	}
 	if err != nil {
 		fmt.Println("Error fetching blogs:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(blogs); err != nil {
 		fmt.Println("Error encoding blogs to JSON:", err)

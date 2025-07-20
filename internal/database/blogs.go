@@ -65,7 +65,7 @@ func (q *Queries) DeleteBlog(blogID int64) error {
 
 func (q *Queries) GetBlogs(limit, offset int) ([]Blog, error) {
 	if limit <= 0 {
-		limit = 10 // Default limit
+		limit = 100
 	}
 	query := "SELECT id, title, content, user_id, created_at FROM blogs ORDER BY created_at DESC LIMIT ? OFFSET ?"
 	rows, err := q.db.Query(query, limit, offset)
@@ -105,24 +105,24 @@ func (q *Queries) GetBlogCount() (int, error) {
 	return count, nil
 }
 
-func (q *Queries) GetBlogsByTitle(title string, limit, offset int) ([]*Blog, error) {
+func (q *Queries) GetBlogsByTitle(title string, limit, offset int) ([]Blog, error) {
 	if limit <= 0 {
-		limit = 10 // Default limit
+		limit = 100 // Default limit
 	}
-	query := "SELECT * FROM blogs WHERE title LIKE ? LIMIT ? OFFSET ?"
+	query := "SELECT id, title, content, user_id, created_at FROM blogs WHERE title LIKE ? LIMIT ? OFFSET ?"
 	rows, err := q.db.Query(query, "%"+title+"%", limit, offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var blogs []*Blog
+	var blogs []Blog
 	for rows.Next() {
 		var blog Blog
 		if err := rows.Scan(&blog.ID, &blog.Title, &blog.Content, &blog.UserID, &blog.PublishedAt); err != nil {
 			return nil, err
 		}
-		blogs = append(blogs, &blog)
+		blogs = append(blogs, blog)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -130,7 +130,7 @@ func (q *Queries) GetBlogsByTitle(title string, limit, offset int) ([]*Blog, err
 	return blogs, nil
 }
 
-func (q *Queries) GetBlogsByUserID(userID int64) ([]*Blog, error) {
+func (q *Queries) GetBlogsByUserID(userID int64) ([]Blog, error) {
 	query := "SELECT * FROM blogs WHERE user_id = ?"
 	rows, err := q.db.Query(query, userID)
 	if err != nil {
@@ -138,13 +138,13 @@ func (q *Queries) GetBlogsByUserID(userID int64) ([]*Blog, error) {
 	}
 	defer rows.Close()
 
-	var blogs []*Blog
+	var blogs []Blog
 	for rows.Next() {
 		var blog Blog
 		if err := rows.Scan(&blog.ID, &blog.Title, &blog.Content, &blog.UserID); err != nil {
 			return nil, err
 		}
-		blogs = append(blogs, &blog)
+		blogs = append(blogs, blog)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
