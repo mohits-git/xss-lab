@@ -26,7 +26,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	mux.HandleFunc("/", apiCfg.rootHandler)
+	mux.HandleFunc("/", apiCfg.landingPageHandler)
 	mux.HandleFunc("GET /login", apiCfg.loginPageHandler)
 	mux.HandleFunc("POST /api/login", apiCfg.loginHandler)
 	mux.HandleFunc("GET /register", apiCfg.registerPageHandler)
@@ -35,7 +35,6 @@ func main() {
 	mux.HandleFunc("GET /blogs/{id}", apiCfg.blogPageHandler)
 	mux.HandleFunc("GET /api/blogs", apiCfg.getBlogsHandler)
 	mux.HandleFunc("GET /api/users/{id}/blogs", apiCfg.getUserBlogsHandler)
-	mux.HandleFunc("GET /api/blogs/{id}", apiCfg.getBlogHandler)
 	mux.Handle("POST /api/blogs", apiCfg.loggedInMiddleware(apiCfg.createBlogHandler))
 	mux.Handle("PUT /api/blogs/{id}", apiCfg.loggedInMiddleware(apiCfg.updateBlogHandler))
 	mux.Handle("DELETE /api/blogs/{id}", apiCfg.loggedInMiddleware(apiCfg.deleteBlogHandler))

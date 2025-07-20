@@ -6,7 +6,7 @@ import (
 	// "html/template" // for escaping HTML
 )
 
-func (cfg *apiConfig) rootHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) landingPageHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("templates/index.html")
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
