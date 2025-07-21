@@ -8,8 +8,6 @@ import (
 )
 
 func (cfg *apiConfig) createCommentHandler(w http.ResponseWriter, r *http.Request, userID int64) {
-	fmt.Println("createCommentHandler called...")
-
 	blogIDStr := r.PathValue("blog_id")
 	blogID, err := strconv.ParseInt(blogIDStr, 10, 64)
 	if err != nil || blogID <= 0 {

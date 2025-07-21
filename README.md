@@ -111,3 +111,27 @@ To prevent XSS attacks, the following measures can be implemented:
 - Use the `html/template` package instead of `text/template` to automatically escape HTML characters.
 - Implement input validation and sanitization for all user inputs.
 - Use Content Security Policy (CSP) headers to restrict the sources of scripts and other resources.
+
+## API Endpoints
+| Method | Endpoint                    | Description                              |
+|--------|-----------------------------|------------------------------------------|
+| POST   | /api/register               | Register a new user                      |
+| POST   | /api/login                  | Log in a user                            |
+| GET    | /api/blogs?query=title      | Search for blog posts by title           |
+| GET    | /api/blogs/count            | Get the count of all blog posts          |
+| GET    | /api/users/{id}/blogs       | Get all blogs by a user                  |
+| POST   | /api/blogs                  | Create a new blog post (protected)       |
+| POST   | /api/comments/{blog_id}     | Add a comment to a blog post (protected) |
+| PUT    | /api/blogs/{id}             | Update a blog post (protected)           |
+| DELETE | /api/blogs/{id}             | Delete a blog post (protected)           |
+
+
+## Pages
+| Page                         | Description                                     |
+|------------------------------|-------------------------------------------------|
+| Home (/)                     | Displays all blog posts                         |
+| Register (/register)         | User registration page                          |
+| Login (/login)               | User login page                                 |
+| All Blogs (/blogs)           | Displays all blogs + Search + Create a new post |
+| View Post (/blogs/{id})      | Displays a single blog and its comments         |
+
