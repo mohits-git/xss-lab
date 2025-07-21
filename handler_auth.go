@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"text/template"
+	// "text/template"
+	"html/template" // for escaping HTML
 	"time"
 
 	"github.com/mohits-git/xss-lab/internal/auth"

@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"text/template"
+	// "text/template"
+	"html/template"
 
 	"github.com/mohits-git/xss-lab/internal/database"
 )

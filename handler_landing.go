@@ -2,8 +2,8 @@ package main
 
 import (
 	"net/http"
-	"text/template"
-	// "html/template" // for escaping HTML
+	// "text/template"
+	"html/template" // for escaping HTML
 )
 
 func (cfg *apiConfig) landingPageHandler(w http.ResponseWriter, r *http.Request) {
