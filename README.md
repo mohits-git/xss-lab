@@ -17,6 +17,16 @@ XSS-Lab is a simple blog website built with Go. There are many vulnerabilities l
 - bcrypt [golang.org/x/crypto/bcrypt](golang.org/x/crypto/bcrypt)
 
 ## Project Setup
+### Prerequisites
+Goose
+```bash
+go install github.com/pressly/goose/v3/cmd/goose@latest
+```
+SQLite3
+```bash
+sudo apt install sqlite3
+```
+
 1. Clone the repository:
 ```bash
 git clone <repository-url>
